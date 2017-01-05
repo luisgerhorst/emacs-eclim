@@ -64,16 +64,30 @@
      (let ((debug-on-error t))
        (elisp-lint-files-batch)))))
 
-(defun eclim-run-tests ()
-  "Main entry point for linter."
+(defun eclim-run-tests (&optional eclipse-dir)
+  "Main entry point for test runner."
+  (when eclipse-dir
+    (setq eclim-eclipse-dirs (list eclipse-dir)))
+
   (eclim-emacs-init
    (lambda ()
      (let ((tests (directory-files "./test" t "test.el")))
        (while tests
          (load-file (car tests))
          (setq tests (cdr tests))))
-     (let ((debug-on-error t))
-       (ert-run-tests-batch-and-exit)))))
+
+     ;; File in which `eclim-executable' is set:
+     (require 'eclim-common)
+
+     (let ((debug-on-error t)
+           (test-selector (if eclim-executable
+                              t
+                            (message "Warning: No eclim executable found. \
+Supply Eclipse directory when testing:
+   make test TEST_ECLIPSE_DIR='\"/my/local/eclipse/\"'
+   Skipping tests that require the eclim executable.")
+                            '(not (tag :eclim-executable-required)))))
+       (ert-run-tests-batch-and-exit test-selector)))))
 
 
 ;;; test-helper.el ends here

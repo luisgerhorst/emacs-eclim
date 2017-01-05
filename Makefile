@@ -9,6 +9,7 @@ LOAD_PATH := -L .
 EMACS_OPTS :=
 EMACS_BATCH := $(EMACS) -Q -batch -L . $(EMACS_OPTS)
 TEST_LOAD_FILES = -l test/test-helper.el
+TEST_ECLIPSE_DIR = nil
 RUN_EMACS :=
 
 # Program availability
@@ -31,7 +32,7 @@ init:
 	$(CASK) update
 
 test:
-	$(RUN_EMACS) $(TEST_LOAD_FILES) -f eclim-run-tests
+	$(RUN_EMACS) $(TEST_LOAD_FILES) --eval '(eclim-run-tests $(TEST_ECLIPSE_DIR))'
 
 lint: $(EL_FILES)
 	$(RUN_EMACS) $(TEST_LOAD_FILES) -f eclim-lint-files $(EL_FILES)
